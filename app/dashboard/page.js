@@ -22,14 +22,6 @@ import {
 } from "recharts"
 import { useBreedDistribution } from "@/app/hooks/useBreedDistribution"
 
-// Sample data for charts
-const breedDistribution = [
-  { name: "Cattle", value: 45 },
-  { name: "Sheep", value: 25 },
-  { name: "Goat", value: 15 },
-  { name: "Pig", value: 10 },
-  { name: "Chicken", value: 5 },
-]
 
 const healthAlerts = [
   { id: 1, animal: "Daisy (Cow #1234)", issue: "Missed vaccination", priority: "high", date: "2023-04-15" },

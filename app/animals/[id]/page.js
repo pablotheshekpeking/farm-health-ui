@@ -94,7 +94,23 @@ export default function AnimalDetailPage({ params }) {
               Edit
             </Link>
           </Button>
-          <Button variant="destructive">
+          <Button 
+            variant="destructive" 
+            onClick={async () => {
+              if (confirm("Are you sure you want to delete this animal? This action cannot be undone.")) {
+                try {
+                  const response = await fetch(`/api/animals/${animal.id}`, {
+                    method: 'DELETE'
+                  })
+                  if (!response.ok) throw new Error('Failed to delete animal')
+                  router.push('/animals')
+                } catch (error) {
+                  console.error('Error deleting animal:', error)
+                  // You might want to add proper error handling/notification here
+                }
+              }
+            }}
+          >
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </Button>

@@ -70,6 +70,26 @@ export default function AnimalsPage() {
     setCurrentPage(1)
   }
 
+  const handleDelete = async (animalId) => {
+    if (confirm("Are you sure you want to delete this animal? This action cannot be undone.")) {
+      try {
+        const response = await fetch(`/api/animals/${animalId}`, {
+          method: 'DELETE'
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete animal')
+        }
+
+        // Refetch the data to update the table
+        router.refresh()
+      } catch (error) {
+        console.error("Error deleting animal:", error)
+        // You might want to add a toast notification here for better UX
+      }
+    }
+  }
+
   const getStatusBadgeVariant = (status) => {
     switch (status) {
       case "healthy":
@@ -197,7 +217,10 @@ export default function AnimalsPage() {
                                     Edit
                                   </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive">
+                                <DropdownMenuItem 
+                                  className="text-destructive" 
+                                  onClick={() => handleDelete(animal.id)}
+                                >
                                   <Trash2 className="mr-2 h-4 w-4" />
                                   Delete
                                 </DropdownMenuItem>

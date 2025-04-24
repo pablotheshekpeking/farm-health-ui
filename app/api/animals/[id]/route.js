@@ -143,3 +143,58 @@ export async function PUT(req, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
+
+
+export async function DELETE(req, { params }) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const animalId = parseInt(params.id)
+
+    // Get user's farm
+    const userFarm = await prisma.farm.findFirst({
+      where: {
+        ownerId: parseInt(session.user.id)
+      }
+    })
+
+    if (!userFarm) {
+      return NextResponse.json({ error: "No farm found" }, { status: 404 })
+    }
+
+    // Verify animal belongs to user's farm
+    const existingAnimal = await prisma.animal.findFirst({
+      where: {
+        id: animalId,
+        farmId: userFarm.id
+      }
+    })
+
+    if (!existingAnimal) {
+      return NextResponse.json({ error: "Animal not found" }, { status: 404 })
+    }
+
+    // First delete all related health records
+    await prisma.healthRecord.deleteMany({
+      where: {
+        animalId: animalId
+      }
+    })
+
+    // Then delete the animal
+    await prisma.animal.delete({
+      where: {
+        id: animalId
+      }
+    })
+
+    return NextResponse.json({ message: "Animal deleted successfully" })
+  } catch (error) {
+    console.error("Error deleting animal:", error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
