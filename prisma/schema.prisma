@@ -1,0 +1,99 @@
+// schema.prisma
+
+// 1. Datasource & Generator
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. Enums
+enum Role {
+  ADMIN
+  USER
+}
+
+enum AnimalSex {
+  MALE
+  FEMALE
+}
+
+enum HealthStatus {
+  HEALTHY
+  SICK
+  QUARANTINED
+}
+
+// 3. Models
+
+// Users of the system
+model User {
+  id          Int          @id @default(autoincrement())
+  name        String
+  email       String       @unique
+  password    String
+  role        Role         @default(USER)
+  farms       Farm[]       // one-to-many: a user can own multiple farms
+  preferences Preferences? // one-to-one: user-specific settings
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// Farms managed by users
+model Farm {
+  id        Int      @id @default(autoincrement())
+  name      String
+  location  String?              // optional descriptive field
+  owner     User     @relation(fields: [ownerId], references: [id])
+  ownerId   Int
+  animals   Animal[]             // one-to-many: farm contains many animals
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Catalog of animal breeds
+model Breed {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  animals Animal[] // one-to-many: breed assigned to many animals
+}
+
+// Individual animal records
+model Animal {
+  id            Int            @id @default(autoincrement())
+  name          String
+  birthDate     DateTime
+  sex           AnimalSex
+  farm          Farm           @relation(fields: [farmId], references: [id])
+  farmId        Int
+  breed         Breed          @relation(fields: [breedId], references: [id])
+  breedId       Int
+  healthRecords HealthRecord[] // one-to-many: health history entries
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+// Historical health entries per animal
+model HealthRecord {
+  id        Int          @id @default(autoincrement())
+  animal    Animal       @relation(fields: [animalId], references: [id])
+  animalId  Int
+  date      DateTime     @default(now())
+  status    HealthStatus
+  weight    Float?
+  notes     String?
+  createdAt DateTime     @default(now())
+}
+
+// User-specific preferences (one-to-one)
+model Preferences {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int      @unique
+  emailAlerts Boolean  @default(true)
+  darkMode    Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+}
