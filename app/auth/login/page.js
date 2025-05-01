@@ -73,7 +73,7 @@ export default function LoginPage() {
       if (result?.error) {
         setErrors({ auth: "Invalid email or password. Please check your credentials and try again." })
       } else if (result?.ok) {
-        await router.push("/dashboard")
+        router.push("/dashboard")
       }
     } catch (error) {
       console.error("Login error:", error)
