@@ -94,16 +94,51 @@ export async function GET() {
     ).length
 
     // Get previous month's stats for comparison
-    const previousMonth = new Date(now.setMonth(now.getMonth() - 1))
-    const previousStats = await prisma.animal.aggregate({
+    const nowDate = new Date()
+    const startOfThisMonth = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1)
+    const startOfPrevMonth = new Date(nowDate.getFullYear(), nowDate.getMonth() - 1, 1)
+    const endOfPrevMonth = new Date(nowDate.getFullYear(), nowDate.getMonth(), 0)
+
+    const prevAnimals = await prisma.animal.findMany({
       where: {
         farmId: userFarm.id,
-        createdAt: {
-          lt: previousMonth
-        }
+        createdAt: { lte: endOfPrevMonth },
       },
-      _count: true
+      include: {
+        healthRecords: {
+          where: { date: { lte: endOfPrevMonth } },
+          orderBy: { date: 'desc' },
+          take: 1,
+        }
+      }
     })
+
+    const prevTotalAnimals = prevAnimals.length
+
+    const prevAges = prevAnimals.map(animal => {
+      const birthDate = new Date(animal.birthDate)
+      return (endOfPrevMonth - birthDate) / (1000 * 60 * 60 * 24 * 30.44)
+    })
+    const prevAverageAge = prevAges.length
+      ? Math.round(prevAges.reduce((a, b) => a + b, 0) / prevAges.length)
+      : 0
+
+    const prevWeights = prevAnimals
+      .map(animal => animal.healthRecords[0]?.weight)
+      .filter(weight => weight !== null && weight !== undefined)
+    const prevAverageWeight = prevWeights.length
+      ? Math.round(prevWeights.reduce((a, b) => a + b, 0) / prevWeights.length)
+      : 0
+
+    const prevHealthAlerts = prevAnimals.filter(animal =>
+      animal.healthRecords[0]?.status === "SICK" ||
+      animal.healthRecords[0]?.status === "QUARANTINED"
+    ).length
+
+    const delta = (current, prev, unit = "") => {
+      const diff = current - prev
+      return `${diff > 0 ? "+" : ""}${diff}${unit}`
+    }
 
     return NextResponse.json({
       currentStats: {
@@ -114,10 +149,10 @@ export async function GET() {
         ageDistribution
       },
       changes: {
-        animals: `${totalAnimals - previousStats._count > 0 ? '+' : ''}${totalAnimals - previousStats._count}`,
-        age: "+2",
-        weight: "+12",
-        alerts: "-2"
+        animals: delta(totalAnimals, prevTotalAnimals),
+        age: delta(averageAge, prevAverageAge),
+        weight: delta(averageWeight, prevAverageWeight),
+        alerts: delta(healthAlerts, prevHealthAlerts)
       }
     })
   } catch (error) {

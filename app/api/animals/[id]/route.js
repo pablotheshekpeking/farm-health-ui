@@ -105,6 +105,9 @@ export async function PUT(req, { params }) {
       where: {
         id: animalId,
         farmId: userFarm.id
+      },
+      include: {
+        breed: true
       }
     })
 
@@ -135,6 +138,34 @@ export async function PUT(req, { params }) {
           notes: data.notes
         }
       })
+
+      // Notification logic
+      if (data.healthStatus === 'SICK') {
+        await prisma.notification.create({
+          data: {
+            userId: userFarm.ownerId,
+            message: `Animal ${existingAnimal.breed.name} (ID: ${existingAnimal.id}) is marked as SICK. Please check immediately.`
+          }
+        })
+      }
+
+      if (data.healthStatus === 'HEALTHY') {
+        await prisma.notification.create({
+          data: {
+            userId: userFarm.ownerId,
+            message: `Animal ${existingAnimal.breed.name} (ID: ${existingAnimal.id}) is marked as HEALTHY. Please check immediately.`
+          }
+        })
+      }
+
+      if (data.healthStatus === 'QUARANTINED') {
+        await prisma.notification.create({
+          data: {
+            userId: userFarm.ownerId,
+            message: `Animal ${existingAnimal.breed.name} (ID: ${existingAnimal.id}) is marked as QUARANTINED. Please check immediately.`
+          }
+        })
+      }
     }
 
     return NextResponse.json(updatedAnimal)

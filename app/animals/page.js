@@ -211,12 +211,6 @@ export default function AnimalsPage() {
                                     View
                                   </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/animals/${animal.id}/edit`}>
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    Edit
-                                  </Link>
-                                </DropdownMenuItem>
                                 <DropdownMenuItem 
                                   className="text-destructive" 
                                   onClick={() => handleDelete(animal.id)}
