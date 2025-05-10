@@ -123,59 +123,62 @@ export default function NavBar() {
           </nav>
 
           {/* Mobile Navigation */}
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <div className="flex flex-col gap-6 py-4">
-                <div className="flex items-center justify-between">
-                  <Link href="/dashboard" className="flex items-center gap-2 font-bold text-xl">
-                    <PawPrint className="h-6 w-6" />
-                    <span className="text-base sm:text-lg md:text-xl">LiveStock Health Tracker</span>
-                  </Link>
-                  <SheetClose asChild>
-                  </SheetClose>
-                </div>
-                <nav className="flex flex-col gap-4">
-                  {NavItems.map((item) => (
-                    <SheetClose asChild key={item.href}>
-                      <Link
-                        href={item.href}
-                        className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${
-                          isActive(item.href) ? "text-primary" : "text-muted-foreground"
-                        }`}
-                        onClick={() => setOpen(false)}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        {item.name}
-                      </Link>
+          <div className="md:hidden flex items-center gap-2">
+            <NotificationDropdown />
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right">
+                <div className="flex flex-col gap-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <Link href="/dashboard" className="flex items-center gap-2 font-bold text-xl">
+                      <PawPrint className="h-6 w-6" />
+                      <span className="text-base sm:text-lg md:text-xl">LiveStock Health Tracker</span>
+                    </Link>
+                    <SheetClose asChild>
                     </SheetClose>
-                  ))}
-                  <SheetClose asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-2"
-                      onClick={() => {
-                        setOpen(false)
-                        signOut()
-                      }}
-                    >
-                      <LogOut className="h-5 w-5" />
-                      Logout
-                    </Button>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <ThemeToggle />
-                  </SheetClose>
-                </nav>
-              </div>
-            </SheetContent>
-          </Sheet>
+                  </div>
+                  <nav className="flex flex-col gap-4">
+                    {NavItems.map((item) => (
+                      <SheetClose asChild key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${
+                            isActive(item.href) ? "text-primary" : "text-muted-foreground"
+                          }`}
+                          onClick={() => setOpen(false)}
+                        >
+                          <item.icon className="h-5 w-5" />
+                          {item.name}
+                        </Link>
+                      </SheetClose>
+                    ))}
+                    <SheetClose asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => {
+                          setOpen(false)
+                          signOut()
+                        }}
+                      >
+                        <LogOut className="h-5 w-5" />
+                        Logout
+                      </Button>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <ThemeToggle />
+                    </SheetClose>
+                  </nav>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>

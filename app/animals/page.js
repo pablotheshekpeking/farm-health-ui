@@ -177,6 +177,7 @@ export default function AnimalsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>ID</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Breed</TableHead>
                       <TableHead>Age (months)</TableHead>
@@ -188,6 +189,7 @@ export default function AnimalsPage() {
                     {animalData?.animals.length > 0 ? (
                       animalData.animals.map((animal) => (
                         <TableRow key={animal.id}>
+                          <TableCell className="font-medium">{animal.id}</TableCell>
                           <TableCell className="font-medium">{animal.name}</TableCell>
                           <TableCell>{animal.breed}</TableCell>
                           <TableCell>{animal.age}</TableCell>
